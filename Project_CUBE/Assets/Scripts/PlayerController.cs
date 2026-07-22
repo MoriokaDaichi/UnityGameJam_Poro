@@ -1,38 +1,73 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-   
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private float moveSpeed = 4.0f;
+    [SerializeField] private float rotationSpeed = 360.0f; // 度/秒
+    [SerializeField] private float jumpHeight = 1.5f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private ThirdPersonCamera thirdPersonCamera;
+
+    private CharacterController controller;
+    private float verticalVelocity;
+
     void Start()
     {
-        
+        controller = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector3 direction = Vector3.zero;
-        Vector3 rotation = Vector3.zero;
+        float horizontal = 0.0f;
+        float vertical = 0.0f;
 
         if (Keyboard.current.wKey.isPressed)
         {
-            direction.z = 1.0f;
+            vertical = 1.0f;
         }
         if (Keyboard.current.sKey.isPressed)
         {
-            direction.z = -1.0f;
+            vertical = -1.0f;
         }
         if (Keyboard.current.dKey.isPressed)
         {
-            direction.y = 90.0f;
+            horizontal = 1.0f;
         }
         if (Keyboard.current.aKey.isPressed)
         {
-            direction.y = -90.0f;
+            horizontal = -1.0f;
         }
-        transform.Translate(direction * Time.deltaTime);
-        transform.Rotate(rotation * Time.deltaTime);
+
+        Vector3 camForward = thirdPersonCamera != null ? thirdPersonCamera.GetFlatForward() : Vector3.forward;
+        Vector3 camRight = thirdPersonCamera != null ? thirdPersonCamera.GetFlatRight() : Vector3.right;
+
+        Vector3 moveDirection = camForward * vertical + camRight * horizontal;
+        if (moveDirection.sqrMagnitude > 1.0f)
+        {
+            moveDirection.Normalize();
+        }
+        if (moveDirection.sqrMagnitude > 0.0f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        if (controller.isGrounded)
+        {
+            if (verticalVelocity < 0.0f)
+            {
+                verticalVelocity = -2.0f;
+            }
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2.0f * gravity);
+            }
+        }
+        verticalVelocity += gravity * Time.deltaTime;
+
+        Vector3 motion = moveDirection * moveSpeed + Vector3.up * verticalVelocity;
+        controller.Move(motion * Time.deltaTime);
     }
 }
