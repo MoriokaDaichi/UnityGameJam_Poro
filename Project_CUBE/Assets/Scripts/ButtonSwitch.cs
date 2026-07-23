@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,11 +6,21 @@ public class ButtonSwitch : MonoBehaviour
     // 沈ませるボタン
     public Transform button;
 
-    // ボタンの元の位置
-    private Vector3 startPos;
+    // 押している間、動かすキューブ
+    [SerializeField] private CubeMove[] cubes;
 
-    // ボタンが動いているか
-    private bool isMoving = false;
+    // 沈み込む深さ
+    [SerializeField] private float pressDepth = 0.03f;
+
+    // ボタンが沈む/戻る速度(単位/秒)
+    [SerializeField] private float pressSpeed = 0.1f;
+
+    // ボタンの元の位置・押し込んだ位置
+    private Vector3 startPos;
+    private Vector3 pressedPos;
+
+    // 現在押し込まれているか(長押し中か)
+    private bool isHeld = false;
 
     // プレイヤーが近くにいるか
     private bool playerNear = false;
@@ -19,19 +28,73 @@ public class ButtonSwitch : MonoBehaviour
     void Start()
     {
         startPos = button.position;
+        pressedPos = startPos + new Vector3(0f, 0f, pressDepth);
     }
 
     void Update()
     {
-        if (playerNear &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            Debug.Log("ボタンを押した！");
+        UpdateHeldState();
 
-            if (!isMoving)
+        // 押している間だけpressedPos、離したらstartPosへ滑らかに追従
+        Vector3 target = isHeld ? pressedPos : startPos;
+        button.position = Vector3.MoveTowards(button.position, target, pressSpeed * Time.deltaTime);
+    }
+
+    private void UpdateHeldState()
+    {
+        if (playerNear && Keyboard.current != null)
+        {
+            if (!isHeld && Keyboard.current.eKey.wasPressedThisFrame)
             {
-                StartCoroutine(PushButton());
+                StartHold();
+                return;
+            }
+
+            if (isHeld && Keyboard.current.eKey.wasReleasedThisFrame)
+            {
+                EndHold();
+                return;
+            }
+        }
+        else if (isHeld)
+        {
+            // 範囲外に出たら強制的に離した扱いにする
+            EndHold();
+        }
+    }
+
+    private void StartHold()
+    {
+        isHeld = true;
+
+        if (cubes == null)
+        {
+            return;
+        }
+
+        foreach (CubeMove cube in cubes)
+        {
+            if (cube != null)
+            {
+                cube.MoveToWaypoint(0);
+            }
+        }
+    }
+
+    private void EndHold()
+    {
+        isHeld = false;
+
+        if (cubes == null)
+        {
+            return;
+        }
+
+        foreach (CubeMove cube in cubes)
+        {
+            if (cube != null)
+            {
+                cube.CancelAndReturn();
             }
         }
     }
@@ -50,20 +113,5 @@ public class ButtonSwitch : MonoBehaviour
         {
             playerNear = false;
         }
-    }
-
-    IEnumerator PushButton()
-    {
-        isMoving = true;
-
-        // 少し沈む
-        button.position = startPos + new Vector3(0f, 0f, 0.03f);
-
-        yield return new WaitForSeconds(0.3f);
-
-        // 元に戻る
-        button.position = startPos;
-
-        isMoving = false;
     }
 }

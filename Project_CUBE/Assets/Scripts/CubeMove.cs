@@ -7,20 +7,51 @@ public class CubeMove : MonoBehaviour
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float moveSpeed = 3f; // 単位/秒
 
-    private readonly Queue<Transform> pendingMoves = new Queue<Transform>();
+    private readonly Queue<Vector3> pendingMoves = new Queue<Vector3>();
     private int nextWaypointIndex = 0;
     private bool isMoving = false;
+    private bool isReturning = false;
+
+    private Coroutine moveCoroutine;
+    private Vector3 moveStartPosition;
+    private Vector3 initialPosition;
+
+    // 移動中、または移動待ちがまだ残っているか
+    public bool IsBusy => isMoving || pendingMoves.Count > 0;
+
+    // 他のキューブとの衝突で移動がキャンセルされたときに呼ばれる
+    public event System.Action OnMoveBlocked;
+
+    void Awake()
+    {
+        initialPosition = transform.position;
+    }
 
     void Update()
     {
         if (!isMoving && pendingMoves.Count > 0)
         {
-            Transform target = pendingMoves.Dequeue();
-            StartCoroutine(MoveToPoint(target.position));
+            Vector3 destination = pendingMoves.Dequeue();
+            moveStartPosition = transform.position;
+            moveCoroutine = StartCoroutine(MoveToPoint(destination));
         }
     }
 
-    // Receiverから呼ばれ、次のウェイポイントへの移動をキューに積む
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!isMoving || isReturning)
+        {
+            return;
+        }
+
+        if (other.CompareTag("Cube"))
+        {
+            CancelAndReturn();
+            OnMoveBlocked?.Invoke();
+        }
+    }
+
+    // 光線(Receiver)用: 次のウェイポイントへの移動をキューに積む
     public void TriggerMove()
     {
         if (waypoints == null || waypoints.Length == 0)
@@ -33,8 +64,41 @@ public class CubeMove : MonoBehaviour
 
         if (target != null)
         {
-            pendingMoves.Enqueue(target);
+            pendingMoves.Enqueue(target.position);
         }
+    }
+
+    // レバー用: シーケンスに関係なく、指定した番号の地点へ直接移動する
+    public void MoveToWaypoint(int index)
+    {
+        if (waypoints == null || index < 0 || index >= waypoints.Length)
+        {
+            return;
+        }
+
+        Transform target = waypoints[index];
+        if (target != null)
+        {
+            pendingMoves.Enqueue(target.position);
+        }
+    }
+
+    // レバー用: シーン開始時の初期位置へ直接移動する
+    public void MoveToInitialPosition()
+    {
+        pendingMoves.Enqueue(initialPosition);
+    }
+
+    // ボタン用: 今の移動を中断し、その移動を始める前の位置へ戻す
+    public void CancelAndReturn()
+    {
+        pendingMoves.Clear();
+
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+        }
+        moveCoroutine = StartCoroutine(ReturnToStart(moveStartPosition));
     }
 
     private IEnumerator MoveToPoint(Vector3 destination)
@@ -51,6 +115,26 @@ public class CubeMove : MonoBehaviour
         yield return MoveBy(yStep);
 
         transform.position = destination;
+        isMoving = false;
+    }
+
+    // 他のキューブに衝突した際、来た経路を逆順にたどって元の位置へ戻る
+    private IEnumerator ReturnToStart(Vector3 origin)
+    {
+        isMoving = true;
+        isReturning = true;
+
+        Vector3 diff = origin - transform.position;
+        Vector3 yStep = new Vector3(0f, diff.y, 0f); // 上下
+        Vector3 xStep = new Vector3(diff.x, 0f, 0f); // 横
+        Vector3 zStep = new Vector3(0f, 0f, diff.z); // 縦
+
+        yield return MoveBy(yStep);
+        yield return MoveBy(xStep);
+        yield return MoveBy(zStep);
+
+        transform.position = origin;
+        isReturning = false;
         isMoving = false;
     }
 
