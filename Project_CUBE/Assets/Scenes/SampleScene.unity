@@ -623,6 +623,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
   m_PrefabInstance: {fileID: 1367376892}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &469681360 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
+  m_PrefabInstance: {fileID: 1367376892}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &734659885
 GameObject:
   m_ObjectHideFlags: 0
@@ -867,6 +872,7 @@ MonoBehaviour:
   jumpHeight: 1.5
   gravity: -9.81
   thirdPersonCamera: {fileID: 330585548}
+  animator: {fileID: 469681360}
 --- !u!143 &835591844
 CharacterController:
   m_ObjectHideFlags: 0
@@ -891,7 +897,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.88, z: 0}
 --- !u!114 &835591845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -971,6 +977,18 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
       propertyPath: m_Name
       value: X Bot
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 0992c155e0486044a8dbc85b1df84860, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
+      propertyPath: m_WarningMessage
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 957fbf6f68884cb49abd2eeb19ac0164, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
