@@ -11,8 +11,15 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float maxPitch = 60f;
     [SerializeField] private float followSpeed = 10f;
 
+    [Header("Aim")]
+    [SerializeField] private float aimDistance = 2f; // エイム中にプレイヤーへ近づける距離
+    [SerializeField] private float aimShoulderOffset = 0.7f; // エイム中に右へ寄せるオフセット
+
     private float yaw;
     private float pitch = 20f;
+    private bool aimMode = false;
+
+    public bool IsAiming { get; private set; }
 
     void Start()
     {
@@ -26,6 +33,8 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (PauseManager.IsPaused)
         {
+            aimMode = false;
+            IsAiming = false;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             return;
@@ -36,7 +45,13 @@ public class ThirdPersonCamera : MonoBehaviour
             return;
         }
 
-        bool isRotating = Mouse.current.leftButton.isPressed;
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            aimMode = !aimMode;
+        }
+        IsAiming = aimMode;
+
+        bool isRotating = Mouse.current.leftButton.isPressed || IsAiming;
         Cursor.lockState = isRotating ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !isRotating;
 
@@ -49,10 +64,13 @@ public class ThirdPersonCamera : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 pivot = target.position + Vector3.up * 1.5f;
-        Vector3 targetPosition = pivot - rotation * Vector3.forward * distance;
+
+        float currentDistance = IsAiming ? aimDistance : distance;
+        Vector3 sideOffset = IsAiming ? rotation * Vector3.right * aimShoulderOffset : Vector3.zero;
+        Vector3 targetPosition = pivot + sideOffset - rotation * Vector3.forward * currentDistance;
 
         transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
-        transform.LookAt(pivot);
+        transform.rotation = rotation;
     }
 
     public Vector3 GetFlatForward()
