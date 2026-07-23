@@ -9,6 +9,8 @@ public class PauseManager : MonoBehaviour
 
     private bool isPaused = false;
 
+    public static bool IsPaused { get; private set; }
+
     void Start()
     {
         if (pausePanel != null)
@@ -35,6 +37,7 @@ public class PauseManager : MonoBehaviour
     public void Pause()
     {
         isPaused = true;
+        IsPaused = true;
         Time.timeScale = 0f;
         if (pausePanel != null)
         {
@@ -45,6 +48,7 @@ public class PauseManager : MonoBehaviour
     public void Resume()
     {
         isPaused = false;
+        IsPaused = false;
         Time.timeScale = 1f;
         if (pausePanel != null)
         {
@@ -60,6 +64,8 @@ public class PauseManager : MonoBehaviour
             return;
         }
 
+        isPaused = false;
+        IsPaused = false;
         Time.timeScale = 1f;
         SceneManager.LoadScene(titleSceneName);
     }

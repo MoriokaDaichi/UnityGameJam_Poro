@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
+    [SerializeField] private Animator animator;
 
     private CharacterController controller;
     private float verticalVelocity;
@@ -48,10 +49,16 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection.Normalize();
         }
-        if (moveDirection.sqrMagnitude > 0.0f)
+        bool isMoving = moveDirection.sqrMagnitude > 0.0f;
+        if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        if (animator != null)
+        {
+            animator.SetBool("IsMoving", isMoving);
+            animator.SetBool("IsGrounded", controller.isGrounded);
         }
 
         if (controller.isGrounded)
@@ -63,6 +70,10 @@ public class PlayerController : MonoBehaviour
             if (Keyboard.current.spaceKey.wasPressedThisFrame)
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2.0f * gravity);
+                if (animator != null)
+                {
+                    animator.SetTrigger("Jump");
+                }
             }
         }
         verticalVelocity += gravity * Time.deltaTime;
