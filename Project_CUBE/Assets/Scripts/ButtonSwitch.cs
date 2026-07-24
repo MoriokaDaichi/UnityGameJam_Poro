@@ -12,6 +12,9 @@ public class ButtonSwitch : MonoBehaviour
     // 沈み込む深さ
     [SerializeField] private float pressDepth = 0.03f;
 
+    // 沈み込む方向(ボタンのローカル座標系)。モデルの向きに合わせてInspectorで調整してください
+    [SerializeField] private Vector3 pressLocalDirection = Vector3.forward;
+
     // ボタンが沈む/戻る速度(単位/秒)
     [SerializeField] private float pressSpeed = 0.1f;
 
@@ -28,7 +31,11 @@ public class ButtonSwitch : MonoBehaviour
     void Start()
     {
         startPos = button.position;
-        pressedPos = startPos + new Vector3(0f, 0f, pressDepth);
+
+        Vector3 direction = pressLocalDirection.sqrMagnitude > 0.0001f ? pressLocalDirection.normalized : Vector3.forward;
+
+        // ボタンのローカル座標系でdirection方向へ沈み込ませる(親の回転にも追従する)
+        pressedPos = startPos + button.TransformDirection(direction) * pressDepth;
     }
 
     void Update()
