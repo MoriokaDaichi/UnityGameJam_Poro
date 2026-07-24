@@ -6,23 +6,12 @@ using UnityEngine.InputSystem;
 public class PlayerRayShooter : MonoBehaviour
 {
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
-    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private LineRenderer lineRendererPrefab; // 発射のたびにこれを複製する
     [SerializeField] private Transform firePoint; // 未設定ならプレイヤー自身の少し上から発射
     [SerializeField] private float maxDistance = 100f;
     [SerializeField] private float beamSpeed = 30f; // 光線が飛ぶ速度(単位/秒)
     [SerializeField] private float beamVisualLength = 2.5f; // 飛んでいく光の帯の長さ
     [SerializeField] private float beamDisplayDuration = 0.15f; // 命中後、残光を表示する時間
-
-    private Coroutine beamCoroutine;
-
-    void Awake()
-    {
-        if (lineRenderer != null)
-        {
-            lineRenderer.positionCount = 2;
-            lineRenderer.enabled = false;
-        }
-    }
 
     void Update()
     {
@@ -46,13 +35,13 @@ public class PlayerRayShooter : MonoBehaviour
         Vector3 hitPoint = camOrigin + camDirection * maxDistance;
         Receiver receiver = null;
 
-        if (Physics.Raycast(camOrigin, camDirection, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Collide))
+        if (Physics.Raycast(camOrigin, camDirection, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
         {
             hitPoint = hit.point;
             receiver = hit.collider.GetComponent<Receiver>();
         }
 
-        if (lineRenderer == null)
+        if (lineRendererPrefab == null)
         {
             if (receiver != null)
             {
@@ -63,16 +52,15 @@ public class PlayerRayShooter : MonoBehaviour
 
         Vector3 beamOrigin = firePoint != null ? firePoint.position : transform.position + Vector3.up * 1.5f;
 
-        if (beamCoroutine != null)
-        {
-            StopCoroutine(beamCoroutine);
-        }
-        beamCoroutine = StartCoroutine(TravelBeam(beamOrigin, hitPoint, receiver));
+        // 発射ごとに専用のLineRendererを生成するため、前の光線を消さずに何本も同時表示できる
+        LineRenderer beam = Instantiate(lineRendererPrefab);
+        beam.positionCount = 2;
+        StartCoroutine(TravelBeam(beam, beamOrigin, hitPoint, receiver));
     }
 
-    private IEnumerator TravelBeam(Vector3 beamOrigin, Vector3 hitPoint, Receiver receiver)
+    private IEnumerator TravelBeam(LineRenderer beam, Vector3 beamOrigin, Vector3 hitPoint, Receiver receiver)
     {
-        lineRenderer.enabled = true;
+        beam.enabled = true;
 
         Vector3 toTarget = hitPoint - beamOrigin;
         float totalDistance = toTarget.magnitude;
@@ -86,8 +74,8 @@ public class PlayerRayShooter : MonoBehaviour
             float headDistance = Mathf.Min(elapsed / duration * totalDistance, totalDistance);
             float tailDistance = Mathf.Max(headDistance - beamVisualLength, 0f);
 
-            lineRenderer.SetPosition(0, beamOrigin + direction * tailDistance);
-            lineRenderer.SetPosition(1, beamOrigin + direction * headDistance);
+            beam.SetPosition(0, beamOrigin + direction * tailDistance);
+            beam.SetPosition(1, beamOrigin + direction * headDistance);
             yield return null;
         }
 
@@ -97,12 +85,11 @@ public class PlayerRayShooter : MonoBehaviour
         }
 
         // 着弾後、短い残光を見せてから消す
-        lineRenderer.SetPosition(0, hitPoint - direction * beamVisualLength);
-        lineRenderer.SetPosition(1, hitPoint);
+        beam.SetPosition(0, hitPoint - direction * beamVisualLength);
+        beam.SetPosition(1, hitPoint);
 
         yield return new WaitForSeconds(beamDisplayDuration);
 
-        lineRenderer.enabled = false;
-        beamCoroutine = null;
+        Destroy(beam.gameObject);
     }
 }

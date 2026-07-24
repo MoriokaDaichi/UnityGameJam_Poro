@@ -9,15 +9,16 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 3f;
     [SerializeField] private float minPitch = -20f;
     [SerializeField] private float maxPitch = 60f;
-    [SerializeField] private float followSpeed = 10f;
 
     [Header("Aim")]
     [SerializeField] private float aimDistance = 2f; // エイム中にプレイヤーへ近づける距離
     [SerializeField] private float aimShoulderOffset = 0.7f; // エイム中に右へ寄せるオフセット
+    [SerializeField] private float aimTransitionSpeed = 8f; // エイム切り替えの滑らかさ
 
     private float yaw;
     private float pitch = 20f;
     private bool aimMode = false;
+    private float aimBlend = 0f; // 0=通常, 1=エイム中
 
     public bool IsAiming { get; private set; }
 
@@ -65,11 +66,14 @@ public class ThirdPersonCamera : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 pivot = target.position + Vector3.up * 1.5f;
 
-        float currentDistance = IsAiming ? aimDistance : distance;
-        Vector3 sideOffset = IsAiming ? rotation * Vector3.right * aimShoulderOffset : Vector3.zero;
+        float targetBlend = IsAiming ? 1f : 0f;
+        aimBlend = Mathf.MoveTowards(aimBlend, targetBlend, aimTransitionSpeed * Time.deltaTime);
+
+        float currentDistance = Mathf.Lerp(distance, aimDistance, aimBlend);
+        Vector3 sideOffset = rotation * Vector3.right * (aimShoulderOffset * aimBlend);
         Vector3 targetPosition = pivot + sideOffset - rotation * Vector3.forward * currentDistance;
 
-        transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
+        transform.position = targetPosition;
         transform.rotation = rotation;
     }
 
