@@ -15,6 +15,9 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float aimShoulderOffset = 0.7f; // エイム中に右へ寄せるオフセット
     [SerializeField] private float aimTransitionSpeed = 8f; // エイム切り替えの滑らかさ
 
+    [Header("Collision")]
+    [SerializeField] private float collisionRadius = 0.2f; // 壁との衝突判定に使う球の半径
+
     private float yaw;
     private float pitch = 20f;
     private bool aimMode = false;
@@ -73,8 +76,39 @@ public class ThirdPersonCamera : MonoBehaviour
         Vector3 sideOffset = rotation * Vector3.right * (aimShoulderOffset * aimBlend);
         Vector3 targetPosition = pivot + sideOffset - rotation * Vector3.forward * currentDistance;
 
-        transform.position = targetPosition;
+        transform.position = ResolveCameraCollision(pivot, targetPosition);
         transform.rotation = rotation;
+    }
+
+    // pivotから目標位置までの間に壁などがあれば、その手前までカメラを引き寄せる
+    private Vector3 ResolveCameraCollision(Vector3 from, Vector3 to)
+    {
+        Vector3 offset = to - from;
+        float distance = offset.magnitude;
+        if (distance < 0.0001f)
+        {
+            return to;
+        }
+
+        Vector3 direction = offset / distance;
+        RaycastHit[] hits = Physics.SphereCastAll(from, collisionRadius, direction, distance, ~0, QueryTriggerInteraction.Ignore);
+
+        float closestDistance = distance;
+        foreach (RaycastHit hit in hits)
+        {
+            // プレイヤー自身のコライダーは無視する
+            if (hit.transform.IsChildOf(target))
+            {
+                continue;
+            }
+
+            if (hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+            }
+        }
+
+        return from + direction * Mathf.Max(closestDistance - collisionRadius, 0f);
     }
 
     public Vector3 GetFlatForward()
