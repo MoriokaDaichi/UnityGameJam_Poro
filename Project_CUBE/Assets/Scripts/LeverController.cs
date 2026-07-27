@@ -16,7 +16,6 @@ public class LeverController : MonoBehaviour
     // レバーを倒したときに動かすキューブ
     [SerializeField] private CubeMove[] cubes;
 
-    private bool isState2 = false;     // false = 1つ目の角度(-45), true = 2つ目の角度(+45)
     private Quaternion rotation1;      // -45度の角度
     private Quaternion rotation2;      // +45度の角度
     private bool playerNear = false;   // プレイヤーが近くにいるか
@@ -27,56 +26,42 @@ public class LeverController : MonoBehaviour
         Quaternion baseRotation = transform.localRotation;
         rotation1 = baseRotation * Quaternion.Euler(0f, 0f, angle1);
         rotation2 = baseRotation * Quaternion.Euler(0f, 0f, angle2);
-
-        if (cubes != null)
-        {
-            foreach (CubeMove cube in cubes)
-            {
-                if (cube != null)
-                {
-                    cube.OnMoveBlocked += HandleCubeMoveBlocked;
-                }
-            }
-        }
-    }
-
-    void OnDestroy()
-    {
-        if (cubes != null)
-        {
-            foreach (CubeMove cube in cubes)
-            {
-                if (cube != null)
-                {
-                    cube.OnMoveBlocked -= HandleCubeMoveBlocked;
-                }
-            }
-        }
-    }
-
-    // 連携キューブの移動が他ブロックとの衝突でキャンセルされたら、レバーの向きも元に戻す
-    private void HandleCubeMoveBlocked()
-    {
-        isState2 = !isState2;
     }
 
     void Update()
     {
-        // プレイヤーが近くにいる時だけ、Eキーを押すたびに状態を反転（切り替え）
+        // プレイヤーが近くにいる時だけ、Eキーを押すたびにキューブへ「今いない方」への移動を指示
         if (playerNear && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            isState2 = !isState2;
             NotifyCubes();
         }
 
-        // 状態に合わせて目標の角度を選ぶ
-        Quaternion targetRotation = isState2 ? rotation2 : rotation1;
+        // レバーの向きは、キューブが今どちらにいる(向かっている)かをそのまま反映する
+        Quaternion targetRotation = IsAtWaypoint() ? rotation2 : rotation1;
 
         // 目標の角度に向かって滑らかに回転させる
         transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, Time.deltaTime * smoothSpeed);
     }
 
-    // レバーの状態に応じて、キューブを「初期位置」と「waypoints先頭」のどちらかへ直接動かす
+    // 連携キューブ(先頭)がWaypoint側にいるかどうかを、レバーの向き決定に使う
+    private bool IsAtWaypoint()
+    {
+        if (cubes == null)
+        {
+            return false;
+        }
+
+        foreach (CubeMove cube in cubes)
+        {
+            if (cube != null)
+            {
+                return cube.AtWaypoint;
+            }
+        }
+
+        return false;
+    }
+
     private void NotifyCubes()
     {
         if (cubes == null)
@@ -86,18 +71,9 @@ public class LeverController : MonoBehaviour
 
         foreach (CubeMove cube in cubes)
         {
-            if (cube == null)
+            if (cube != null)
             {
-                continue;
-            }
-
-            if (isState2)
-            {
-                cube.MoveToWaypoint(0);
-            }
-            else
-            {
-                cube.MoveToInitialPosition();
+                cube.ToggleMove();
             }
         }
     }

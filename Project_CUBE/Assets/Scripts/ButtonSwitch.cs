@@ -83,7 +83,7 @@ public class ButtonSwitch : MonoBehaviour
         {
             if (cube != null)
             {
-                cube.MoveToWaypoint(0);
+                cube.ToggleMove();
             }
         }
     }

@@ -16,8 +16,15 @@ public class CubeMove : MonoBehaviour
     private Vector3 moveStartPosition;
     private Vector3 initialPosition;
 
+    // レバー/ボタン用: 今Waypoint側にいる(または向かっている)かどうかを記憶する
+    private bool atWaypoint = false;
+    private bool atWaypointBeforeMove = false;
+
     // 移動中、または移動待ちがまだ残っているか
     public bool IsBusy => isMoving || pendingMoves.Count > 0;
+
+    // 現在Waypoint側にいる(向かっている)か。falseなら初期位置側
+    public bool AtWaypoint => atWaypoint;
 
     // 他のキューブとの衝突で移動がキャンセルされたときに呼ばれる
     public event System.Action OnMoveBlocked;
@@ -68,6 +75,19 @@ public class CubeMove : MonoBehaviour
         }
     }
 
+    // レバー/ボタン用: 今いない方(Waypoint⇔初期位置)へ移動する
+    public void ToggleMove()
+    {
+        if (atWaypoint)
+        {
+            MoveToInitialPosition();
+        }
+        else
+        {
+            MoveToWaypoint(0);
+        }
+    }
+
     // レバー用: シーケンスに関係なく、指定した番号の地点へ直接移動する
     public void MoveToWaypoint(int index)
     {
@@ -79,6 +99,8 @@ public class CubeMove : MonoBehaviour
         Transform target = waypoints[index];
         if (target != null)
         {
+            atWaypointBeforeMove = atWaypoint;
+            atWaypoint = true;
             pendingMoves.Enqueue(target.position);
         }
     }
@@ -86,6 +108,8 @@ public class CubeMove : MonoBehaviour
     // レバー用: シーン開始時の初期位置へ直接移動する
     public void MoveToInitialPosition()
     {
+        atWaypointBeforeMove = atWaypoint;
+        atWaypoint = false;
         pendingMoves.Enqueue(initialPosition);
     }
 
@@ -93,6 +117,7 @@ public class CubeMove : MonoBehaviour
     public void CancelAndReturn()
     {
         pendingMoves.Clear();
+        atWaypoint = atWaypointBeforeMove;
 
         if (moveCoroutine != null)
         {
