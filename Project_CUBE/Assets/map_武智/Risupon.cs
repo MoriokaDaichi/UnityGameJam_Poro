@@ -8,6 +8,10 @@ public class Risupon : MonoBehaviour
     [Header("扉を動かしているボタン")]
     public ButtonDoorController buttonDoorController;
 
+    [Header("リスポーン時のメッセージ")]
+    public string respawnMessage = "やり直し";
+    public float respawnMessageDuration = 2f;
+
     private CharacterController controller;
 
     void Start()
@@ -60,6 +64,12 @@ public class Risupon : MonoBehaviour
         if (buttonDoorController != null)
         {
             buttonDoorController.CloseDoor();
+        }
+
+        // プレイヤーへのフィードバック表示
+        if (InteractionHintUI.Instance != null)
+        {
+            InteractionHintUI.Instance.ShowTemporary(this, respawnMessage, respawnMessageDuration);
         }
 
         Debug.Log(
