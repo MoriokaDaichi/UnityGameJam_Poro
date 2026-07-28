@@ -51,7 +51,7 @@ public class CubeMove : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Cube"))
+        if (other.CompareTag("Cube") || other.CompareTag("Player"))
         {
             CancelAndReturn();
             OnMoveBlocked?.Invoke();
