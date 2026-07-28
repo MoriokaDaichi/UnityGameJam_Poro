@@ -10,6 +10,9 @@ public class reverController : MonoBehaviour
     [Tooltip("レバーの下にある、色がついたキューブ（土台など）をここにドラッグ＆ドロップ")]
     public GameObject baseCube;
 
+    [Tooltip("動かすキューブを直接指定する場合はここにドラッグ＆ドロップ。未設定の場合はBaseCubeと同じ色のブロックを自動検索します")]
+    public Transform targetBlockOverride;
+
     [Header("回転・移動の設定")]
     [Tooltip("手前に倒す角度（例: -45）")]
     public float angle1 = -45f;
@@ -53,9 +56,18 @@ public class reverController : MonoBehaviour
             if (player != null) playerTransform = player.transform;
         }
 
-        // 4. 下のキューブと同じ色のブロックを検索
-        if (baseCube != null)
+        // 4. 動かすブロックを決定する
+        if (targetBlockOverride != null)
         {
+            // 直接指定されていれば、それを最優先で使う
+            targetBlock = targetBlockOverride;
+            blockInitialPos = targetBlock.localPosition;
+            blockTargetPos = blockInitialPos + blockMoveOffset;
+            Debug.Log(gameObject.name + " が動かすブロックを直接指定されました: " + targetBlock.name);
+        }
+        else if (baseCube != null)
+        {
+            // 未設定の場合は、下のキューブと同じ色のブロックを検索(従来通り)
             Renderer baseRend = baseCube.GetComponent<Renderer>();
             if (baseRend != null)
             {
@@ -114,12 +126,13 @@ public class reverController : MonoBehaviour
     // レバーのON/OFF切り替え用関数
     public void ToggleLever()
     {
-        if (leverState == 0 || leverState == 2)
+        if (leverState == 2)
         {
             leverState = 1;
         }
         else
         {
+            // 初期状態(0)からの1回目の入力も、状態1を経由せず直接ONにする
             leverState = 2;
         }
     }
