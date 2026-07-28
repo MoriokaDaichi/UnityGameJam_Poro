@@ -13,7 +13,14 @@ public class ScreenFader : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // 完全に暗転したタイミングでonFullyFadedを実行し、その後フェードインする

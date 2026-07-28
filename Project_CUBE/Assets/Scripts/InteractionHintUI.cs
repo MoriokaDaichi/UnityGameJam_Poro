@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,6 +33,19 @@ public class InteractionHintUI : MonoBehaviour
     {
         activeKeys.Remove(key);
         messages.Remove(key);
+    }
+
+    // リスポーン通知など、範囲判定を持たない一時的なメッセージ表示用
+    public void ShowTemporary(object key, string message, float duration)
+    {
+        Show(key, message);
+        StartCoroutine(HideAfterDelay(key, duration));
+    }
+
+    private IEnumerator HideAfterDelay(object key, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Hide(key);
     }
 
     void OnGUI()
