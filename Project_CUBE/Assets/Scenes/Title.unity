@@ -593,7 +593,6 @@ GameObject:
   - component: {fileID: 1137166823}
   - component: {fileID: 1137166826}
   - component: {fileID: 1137166825}
-  - component: {fileID: 1137166824}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -621,18 +620,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.9471, y: -89.0016}
   m_SizeDelta: {x: 322.9166, y: 49.891}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1137166824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1137166822}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a710cec40d6fb994e83ee09b395ebcd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TitleButton
 --- !u!114 &1137166825
 MonoBehaviour:
   m_ObjectHideFlags: 0

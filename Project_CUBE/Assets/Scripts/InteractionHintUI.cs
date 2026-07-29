@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // 画面下部にインタラクションのヒントテキストを表示する管理役。シーンに1つ配置する。
 public class InteractionHintUI : MonoBehaviour
@@ -18,6 +19,23 @@ public class InteractionHintUI : MonoBehaviour
     void Awake()
     {
         Instance = this;
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    // シーン遷移をまたいで表示中のヒントが残らないよう、シーン読み込みのたびにクリアする
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        activeKeys.Clear();
+        messages.Clear();
     }
 
     public void Show(object key, string message)

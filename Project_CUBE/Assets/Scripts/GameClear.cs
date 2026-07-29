@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
-public class Title : MonoBehaviour
+public class GameClear : MonoBehaviour
 {
-    public void StartGame()
+    public void BackToTitle()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Title");
     }
 
     void Update()
@@ -15,13 +15,13 @@ public class Title : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Debug.Log("Spaceキーが押された");
-            StartGame();
+            BackToTitle();
         }
 
         if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame)
         {
             Debug.Log("Aボタンが押された");
-            StartGame();
+            BackToTitle();
         }
     }
 }
