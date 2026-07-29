@@ -21,6 +21,7 @@ public class ButtonDoorController : MonoBehaviour
 
     private bool playerNear = false;
     private bool doorOpen = false;
+    private bool wasHoldingButton = false;
 
     private Vector3 buttonStartPosition;
     private Vector3 buttonPressedPosition;
@@ -76,17 +77,21 @@ public class ButtonDoorController : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current == null)
-        {
-            return;
-        }
+        // =====================================
+        // Eを押しているか(ゲームパッドXボタンも可)
+        // =====================================
+        bool eHeld = (Keyboard.current != null && Keyboard.current.eKey.isPressed) ||
+                     (Gamepad.current != null && Gamepad.current.buttonWest.isPressed);
 
-        // =====================================
-        // Eを押しているか
-        // =====================================
         bool holdingButton =
             playerNear &&
-            Keyboard.current.eKey.isPressed;
+            eHeld;
+
+        if (holdingButton && !wasHoldingButton && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("Button");
+        }
+        wasHoldingButton = holdingButton;
 
 
         // =====================================

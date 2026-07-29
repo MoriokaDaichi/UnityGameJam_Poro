@@ -21,6 +21,7 @@ public class Button : MonoBehaviour
     public float wallSpeed = 2.0f;
 
 
+
     // CubeMoveから確認するため
     public bool PlayerNear
     {
@@ -73,14 +74,13 @@ public class Button : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current == null)
-        {
-            return;
-        }
+        bool eHeld = (Keyboard.current != null && Keyboard.current.eKey.isPressed) ||
+                     (Gamepad.current != null && Gamepad.current.buttonWest.isPressed);
+        bool ePressedThisFrame = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                                 (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
 
-
-        // プレイヤーが近くでEキーを押している間
-        if (playerNear && Keyboard.current.eKey.isPressed)
+        // プレイヤーが近くでEキー(またはゲームパッドXボタン)を押している間
+        if (playerNear && eHeld)
         {
             if (button != null)
             {
@@ -98,10 +98,14 @@ public class Button : MonoBehaviour
         }
 
 
-        // Eキーを押した瞬間
-        if (playerNear &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+        // Eキー(またはゲームパッドXボタン)を押した瞬間
+        if (playerNear && ePressedThisFrame)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Button");
+            }
+
             Debug.Log("ボタンを押した！");
 
             // このボタンが壁を動かす設定なら

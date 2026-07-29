@@ -3366,6 +3366,7 @@ MonoBehaviour:
   target: {fileID: 835591846}
   distance: 5
   mouseSensitivity: 6
+  gamepadLookSpeed: 180
   minPitch: -20
   maxPitch: 60
   aimDistance: 2

@@ -13,10 +13,10 @@ public class GameClearDoor : MonoBehaviour
 
     void Update()
     {
-        if (!isTransitioning &&
-            playerNear &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
+        if (!isTransitioning && playerNear && pressed)
         {
             StartClear();
         }

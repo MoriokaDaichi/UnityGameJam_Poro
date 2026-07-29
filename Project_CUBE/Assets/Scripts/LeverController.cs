@@ -30,9 +30,17 @@ public class LeverController : MonoBehaviour
 
     void Update()
     {
-        // プレイヤーが近くにいる時だけ、Eキーを押すたびにキューブへ「今いない方」への移動を指示
-        if (playerNear && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        // プレイヤーが近くにいる時だけ、Eキー(またはゲームパッドXボタン)を押すたびにキューブへ「今いない方」への移動を指示
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
+        if (playerNear && pressed)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Lever");
+            }
+
             NotifyCubes();
         }
 

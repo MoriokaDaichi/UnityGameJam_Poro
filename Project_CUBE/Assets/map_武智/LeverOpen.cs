@@ -49,13 +49,20 @@ public class LeverOpen : MonoBehaviour
 
     void Update()
     {
-        // 近くでEキー
+        // 近くでEキー(またはゲームパッドXボタン)
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
         if (!isOn &&
             playerNear &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+            pressed)
         {
             isOn = true;
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Lever");
+            }
 
             Debug.Log("レバーON！");
 

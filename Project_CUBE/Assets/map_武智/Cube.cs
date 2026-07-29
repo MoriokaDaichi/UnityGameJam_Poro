@@ -48,6 +48,7 @@ public class Cube : MonoBehaviour
     private Vector3 movePosition;
 
     private bool reachedTop = false;
+    private bool wasHeld = false;
 
 
     // =========================================
@@ -112,19 +113,20 @@ public class Cube : MonoBehaviour
             return;
         }
 
-        if (Keyboard.current == null)
-        {
-            return;
-        }
-
-
         // =====================================
-        // Eキーを押し続けている
+        // Eキー(またはゲームパッドXボタン)を押し続けている
         // =====================================
 
-        if (button.PlayerNear &&
-            Keyboard.current.eKey.isPressed)
+        bool held = (Keyboard.current != null && Keyboard.current.eKey.isPressed) ||
+                    (Gamepad.current != null && Gamepad.current.buttonWest.isPressed);
+
+        if (button.PlayerNear && held)
         {
+            if (!wasHeld && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Button");
+            }
+
             // ---------------------------------
             // ① まず上へ
             // ---------------------------------
@@ -222,5 +224,7 @@ public class Cube : MonoBehaviour
                 }
             }
         }
+
+        wasHeld = button.PlayerNear && held;
     }
 }

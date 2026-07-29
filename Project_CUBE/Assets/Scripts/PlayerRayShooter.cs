@@ -20,7 +20,10 @@ public class PlayerRayShooter : MonoBehaviour
             return;
         }
 
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        bool firePressed = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
+                           (Gamepad.current != null && Gamepad.current.rightShoulder.wasPressedThisFrame);
+
+        if (firePressed)
         {
             Fire();
         }
@@ -28,6 +31,11 @@ public class PlayerRayShooter : MonoBehaviour
 
     private void Fire()
     {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("ray gun");
+        }
+
         // 命中判定はレティクルと一致するカメラ基準で行う
         Transform camTransform = thirdPersonCamera.transform;
         Vector3 camOrigin = camTransform.position;
