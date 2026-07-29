@@ -49,15 +49,20 @@ public class ButtonSwitch : MonoBehaviour
 
     private void UpdateHeldState()
     {
-        if (playerNear && Keyboard.current != null)
+        if (playerNear)
         {
-            if (!isHeld && Keyboard.current.eKey.wasPressedThisFrame)
+            bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                           (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+            bool released = (Keyboard.current != null && Keyboard.current.eKey.wasReleasedThisFrame) ||
+                            (Gamepad.current != null && Gamepad.current.buttonWest.wasReleasedThisFrame);
+
+            if (!isHeld && pressed)
             {
                 StartHold();
                 return;
             }
 
-            if (isHeld && Keyboard.current.eKey.wasReleasedThisFrame)
+            if (isHeld && released)
             {
                 EndHold();
                 return;
@@ -73,6 +78,11 @@ public class ButtonSwitch : MonoBehaviour
     private void StartHold()
     {
         isHeld = true;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("Button");
+        }
 
         if (cubes == null)
         {

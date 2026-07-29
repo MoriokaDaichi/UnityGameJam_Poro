@@ -13,10 +13,10 @@ public class DoorTeleporter : MonoBehaviour
 
     void Update()
     {
-        if (!isTeleporting &&
-            playerNear &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
+        if (!isTeleporting && playerNear && pressed)
         {
             StartTeleport();
         }

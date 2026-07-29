@@ -24,21 +24,31 @@ public class PlayerController : MonoBehaviour
         float horizontal = 0.0f;
         float vertical = 0.0f;
 
-        if (Keyboard.current.wKey.isPressed)
+        if (Keyboard.current != null)
         {
-            vertical = 1.0f;
+            if (Keyboard.current.wKey.isPressed)
+            {
+                vertical = 1.0f;
+            }
+            if (Keyboard.current.sKey.isPressed)
+            {
+                vertical = -1.0f;
+            }
+            if (Keyboard.current.dKey.isPressed)
+            {
+                horizontal = 1.0f;
+            }
+            if (Keyboard.current.aKey.isPressed)
+            {
+                horizontal = -1.0f;
+            }
         }
-        if (Keyboard.current.sKey.isPressed)
+
+        if (Gamepad.current != null)
         {
-            vertical = -1.0f;
-        }
-        if (Keyboard.current.dKey.isPressed)
-        {
-            horizontal = 1.0f;
-        }
-        if (Keyboard.current.aKey.isPressed)
-        {
-            horizontal = -1.0f;
+            Vector2 stick = Gamepad.current.leftStick.ReadValue();
+            horizontal = Mathf.Clamp(horizontal + stick.x, -1.0f, 1.0f);
+            vertical = Mathf.Clamp(vertical + stick.y, -1.0f, 1.0f);
         }
 
         Vector3 camForward = thirdPersonCamera != null ? thirdPersonCamera.GetFlatForward() : Vector3.forward;
@@ -67,7 +77,10 @@ public class PlayerController : MonoBehaviour
             {
                 verticalVelocity = -2.0f;
             }
-            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            bool jumpPressed = (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) ||
+                               (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame);
+
+            if (jumpPressed)
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2.0f * gravity);
                 if (animator != null)

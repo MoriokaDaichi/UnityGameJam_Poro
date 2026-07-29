@@ -111,12 +111,19 @@ public class WallLeverController : MonoBehaviour
         // Eキーで起動
         // ==============================
 
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
         if (!isOn &&
             playerNear &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+            pressed)
         {
             isOn = true;
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Lever");
+            }
 
             Debug.Log("壁レバーON！");
 

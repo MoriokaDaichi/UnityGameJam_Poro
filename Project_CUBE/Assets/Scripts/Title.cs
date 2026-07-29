@@ -4,9 +4,11 @@ using UnityEngine.InputSystem;
 
 public class Title : MonoBehaviour
 {
+    [SerializeField] private string gameSceneName = "Main";
+
     public void StartGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene(gameSceneName);
     }
 
     void Update()

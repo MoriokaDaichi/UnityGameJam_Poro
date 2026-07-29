@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class reverController : MonoBehaviour
 {
@@ -101,9 +102,17 @@ public class reverController : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, playerTransform.position);
 
-        // 近づいてEキーを押したとき
-        if (distance <= interactDistance && Input.GetKeyDown(KeyCode.E))
+        // 近づいてEキー(またはゲームパッドXボタン)を押したとき
+        bool pressed = (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
+                       (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
+        if (distance <= interactDistance && pressed)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX("Lever");
+            }
+
             ToggleLever();
         }
 

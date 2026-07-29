@@ -7,6 +7,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     [SerializeField] private float distance = 5f;
     [SerializeField] private float mouseSensitivity = 3f;
+    [SerializeField] private float gamepadLookSpeed = 180f; // ゲームパッド右スティックの視点回転速度(度/秒)
     [SerializeField] private float minPitch = -20f;
     [SerializeField] private float maxPitch = 60f;
 
@@ -49,7 +50,8 @@ public class ThirdPersonCamera : MonoBehaviour
             return;
         }
 
-        if (Mouse.current.rightButton.wasPressedThisFrame)
+        bool gamepadAimPressed = Gamepad.current != null && Gamepad.current.leftShoulder.wasPressedThisFrame;
+        if (Mouse.current.rightButton.wasPressedThisFrame || gamepadAimPressed)
         {
             aimMode = !aimMode;
         }
@@ -64,6 +66,17 @@ public class ThirdPersonCamera : MonoBehaviour
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
             yaw += mouseDelta.x * mouseSensitivity * Time.deltaTime;
             pitch = Mathf.Clamp(pitch - mouseDelta.y * mouseSensitivity * Time.deltaTime, minPitch, maxPitch);
+        }
+
+        // ゲームパッドの右スティックは常時カメラ視点操作に使う
+        if (Gamepad.current != null)
+        {
+            Vector2 lookStick = Gamepad.current.rightStick.ReadValue();
+            if (lookStick.sqrMagnitude > 0.01f)
+            {
+                yaw += lookStick.x * gamepadLookSpeed * Time.deltaTime;
+                pitch = Mathf.Clamp(pitch - lookStick.y * gamepadLookSpeed * Time.deltaTime, minPitch, maxPitch);
+            }
         }
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);

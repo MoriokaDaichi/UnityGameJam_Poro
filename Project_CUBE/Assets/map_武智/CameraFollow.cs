@@ -14,6 +14,9 @@ public class CameraFollow : MonoBehaviour
     // マウス感度
     public float mouseSensitivity = 0.15f;
 
+    // ゲームパッド右スティックの視点回転速度(度/秒)
+    public float gamepadLookSpeed = 180f;
+
     private float yaw = 0f;
     private float pitch = 15f;
 
@@ -38,6 +41,17 @@ public class CameraFollow : MonoBehaviour
 
             yaw += mouseDelta.x * mouseSensitivity;
             pitch -= mouseDelta.y * mouseSensitivity;
+        }
+
+        // ゲームパッドの右スティックでも視点操作できるようにする
+        if (Gamepad.current != null)
+        {
+            Vector2 lookStick = Gamepad.current.rightStick.ReadValue();
+            if (lookStick.sqrMagnitude > 0.01f)
+            {
+                yaw += lookStick.x * gamepadLookSpeed * Time.deltaTime;
+                pitch -= lookStick.y * gamepadLookSpeed * Time.deltaTime;
+            }
         }
 
         // 上下を向きすぎないように制限
