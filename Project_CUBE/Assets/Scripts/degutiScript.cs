@@ -3,51 +3,51 @@ using UnityEngine;
 
 public class degutiScript : MonoBehaviour
 {
-    [Header("³‰ğ‚ÌƒŒƒo[i4‚Âj")]
-    [SerializeField] private reverController[] correctLevers; // ³‰ğƒŒƒo[‚ÌƒXƒNƒŠƒvƒg
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½oï¿½[ï¿½i4ï¿½Âj")]
+    [SerializeField] private reverController[] correctLevers; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½[ï¿½ÌƒXï¿½Nï¿½ï¿½ï¿½vï¿½g
 
-    [Header("Á‚µ‚½‚¢áŠQ•¨i…FƒuƒƒbƒNj")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Qï¿½ï¿½ï¿½iï¿½ï¿½ï¿½Fï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½j")]
     [SerializeField] private GameObject doorBlock;
 
     private bool isCleared = false;
 
     void Update()
     {
-        // Šù‚ÉƒNƒŠƒAÏ‚İ‚È‚ç”»’è‚µ‚È‚¢
+        // ï¿½ï¿½ï¿½ÉƒNï¿½ï¿½ï¿½Aï¿½Ï‚İ‚È‚ç”»ï¿½è‚µï¿½È‚ï¿½
         if (isCleared) return;
 
-        // ƒNƒŠƒAğŒ‚Ìƒ`ƒFƒbƒN
+        // ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Ìƒ`ï¿½Fï¿½bï¿½N
         if (CheckAllLeversOn())
         {
             ClearPuzzle();
         }
     }
 
-    // ‚·‚×‚Ä‚Ì³‰ğƒŒƒo[‚ªONiTšó‘Ôj‚©”»’è
+    // ï¿½ï¿½ï¿½×‚Ä‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½[ï¿½ï¿½ONï¿½iTï¿½ï¿½ï¿½ï¿½Ôjï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private bool CheckAllLeversOn()
     {
         if (correctLevers == null || correctLevers.Length == 0) return false;
 
         foreach (var lever in correctLevers)
         {
-            // ƒŒƒo[‚ÌisOnƒvƒƒpƒeƒB‚ğQÆi¦‚à‚µ•Ï”–¼‚ªˆá‚Á‚Ä‚¢‚ê‚Î‡‚í‚¹‚Ä‚­‚¾‚³‚¢j
+            // ï¿½ï¿½ï¿½oï¿½[ï¿½ï¿½isOnï¿½vï¿½ï¿½ï¿½pï¿½eï¿½Bï¿½ï¿½ï¿½Qï¿½Æiï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Îï¿½ï¿½í‚¹ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
             if (lever == null || !lever.IsOn)
             {
-                return false; // 1‚Â‚Å‚àOFF‚ª‚ ‚ê‚ÎƒNƒŠƒA‚¶‚á‚È‚¢
+                return false; // 1ï¿½Â‚Å‚ï¿½OFFï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎƒNï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½È‚ï¿½
             }
         }
-        return true; // ‘S•”ONI
+        return true; // ï¿½Sï¿½ï¿½ONï¿½I
     }
 
-    // ƒNƒŠƒA‚Ìˆ—
+    // ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½
     private void ClearPuzzle()
     {
         isCleared = true;
-        Debug.Log("ƒpƒYƒ‹ƒNƒŠƒAI");
+        Debug.Log("ï¿½pï¿½Yï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Aï¿½I");
 
         if (doorBlock != null)
         {
-            doorBlock.SetActive(false); // …FƒuƒƒbƒN‚ğÁ‚·
+            doorBlock.SetActive(false); // ï¿½ï¿½ï¿½Fï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
     }
 }

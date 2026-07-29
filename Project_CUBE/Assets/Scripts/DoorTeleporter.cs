@@ -8,6 +8,9 @@ public class DoorTeleporter : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Transform destination;
 
+    [Tooltip("このドアを通過することでステージクリア扱いにするか")]
+    [SerializeField] private bool isStageClearDoor = false;
+
     private bool playerNear = false;
     private bool isTeleporting = false;
 
@@ -44,6 +47,11 @@ public class DoorTeleporter : MonoBehaviour
 
     private void Teleport()
     {
+        if (isStageClearDoor && StageManager.Instance != null)
+        {
+            StageManager.Instance.ClearStage();
+        }
+
         if (player != null && destination != null)
         {
             // CharacterControllerがある場合、無効化してから位置を書き換える
